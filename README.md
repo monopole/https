@@ -100,10 +100,11 @@ Alice's public key via email.
 Bob, wanting to make sure that Cindy gets the correct
 key with proper context, makes a text blob with
 multiple key-value pairs; Alice's name, Alice's public
-key, the date the blob was created, etc.
+key, the date the blob was created.
 
 Bob also adds a field _for his own name_ so that anyone
-reading the text blob can know who created it.
+reading the text blob can know who created and signed
+it.
 
 Since Bob is going to send this over a public channel
 (email), he wants to give Cindy a means to verify that
@@ -158,11 +159,11 @@ espionage.
 
 ### Chains of trust
 
-In the above, Bob mentions himself (Bob) in the text
-blob as the certificate issuer (signer). Cindy, who has
-Bob's public key but not Alice's, verifies that this
+In the above, Bob specifies himself in the text blob as
+the certificate creator/signer. Cindy, who has Bob's
+public key but not Alice's, verifies that this
 certificate hasn't been tampered with, and obtains
-Alices public key from the certificate so that she can
+Alice's public key from the certificate so that she can
 encrypt messages directly to Alice.
 
 Now consider Don, Dan or Dave. Assume that they have
@@ -173,10 +174,13 @@ Even though these keys are _public_, one cannot be sure
 one has the _true_ key unless the key is obtained from
 someone directly trusted.
 
-Cindy can create a new certificate, _embedding Bob's
-certificate (containing Alice's key) inside_.  Cindy
-can sign this, and send the new certificate and her
-signature via email to Don, Dan and Dave.
+Somehat following Bob's formatting, Cindy creates a new
+text blob. But instead of copying Alice's information
+into it from Bob's data, she just embeds Bob's
+certificate (which contains Alice's information)
+directly as new field.  She then creates a signature
+for the blob, and combines them to create a new
+"certificate".
 
 > ```
 >                             ┌──► Don
@@ -186,10 +190,9 @@ signature via email to Don, Dan and Dave.
 >                             └──► Dave ───► Erin
 > ```
 
-Cindy could just embed Alice's public key directly in
-the certificate she creates, but she wants to let Don,
-Dan and Dave know that she's an intermediary - that
-she's passing along information she got from Bob.
+Cindy embeds, because she wants to let Don, Dan and
+Dave know that she's an intermediary - that she's
+passing along information she got from Bob.
 
 This can continue - Frank can get Alice's public key
 from Emma, who got it from Dan, who got it from Cindy,
@@ -199,16 +202,23 @@ A message from Frank to Alice goes directly between the
 two, but it's been encrypted with a public key that
 passed through four intermediaries.
 
+The above discussion hints at how a certificate chain
+forms, but is lacking the concept of a _root
+certificate_ (which in this case would have been
+created by Alice), and the specific formatting that
+allows the _root_ to appear. This gets fleshed out in
+HTTPS.
+
 ## Overview of HTTPS
 
 HTTPS is based on the notion of securely obtaining
 public keys via chains of trust.
 
-HTTPS needs one more concept - the notion of
-_certificate authority_ that vouches for the identity
-claims being made by some third party (a server) to a
-large audience (the web). This is detailed below.
-
+To build a clear chain, HTTPS needs two more concepts.
+A _certificate authority_ that vouches for the identity
+claims being made by some one party (a server) to some
+audience (the web), and the notion of a _root
+certificate_.
 
 ### Requesting an HTTPS Session
 
